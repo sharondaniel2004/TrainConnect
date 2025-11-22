@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Available Trains</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/a2c6eefa1e.js"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: #f7f8fa;
+        padding: 40px;
+      }
+      .train-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        display: flex;
+        overflow: hidden;
+        margin-bottom: 25px;
+      }
+      .train-card .left,
+      .train-card .right {
+        padding: 25px;
+        flex: 1;
+      }
+      .train-card .right {
+        background: linear-gradient(135deg, #3a86ff, #8338ec);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .badge-amenity {
+        background-color: #fff;
+        color: #333;
+        border-radius: 30px;
+        padding: 5px 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-left: 8px;
+      }
+      .book-btn {
+        background: white;
+        color: #333;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 30px;
+        font-size: 1rem;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="text-center mb-4">Available Trains</h2>
+      <div id="trainResults"></div>
+
+      <!-- Passenger Form -->
+      <div id="passengerSection" class="mt-5" style="display: none">
+        <h4>Enter Passenger Details</h4>
+        <form action="bookTrain" method="post" id="bookingForm">
+          <input type="hidden" name="trainId" id="trainId" />
+          <input type="hidden" name="from" id="fromStation" />
+          <input type="hidden" name="to" id="toStation" />
+          <input type="hidden" name="travelDate" id="travelDate" />
+          <input type="hidden" name="trainName" id="trainName" />
+          
+          <div class="mb-3">
+            <label for="count">Number of Passengers:</label>
+            <input
+              type="number"
+              id="count"
+              class="form-control"
+              name="count"
+              min="1"
+              max="6"
+              required
+            />
+          </div>
+          
+          <!-- Coach Type -->
+<div class="mb-3">
+  <label for="coachType">Coach Type:</label>
+  <select id="coachType" name="coachType" class="form-select" required>
+    <option value="">Select</option>
+    <option value="Economy">Economy</option>
+    <option value="AC">AC</option>
+    <option value="Sleeper">Sleeper</option>
+  </select>
+</div>
+
+<!-- Common Email -->
+<div class="mb-3">
+  <label for="email">Contact Email:</label>
+  <input type="email" id="email" name="email" class="form-control" required />
+</div>
+          
+          <div id="passengerFields"></div>
+          <button type="submit" class="btn btn-success">Book Ticket</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const from = urlParams.get("fromStation");
+      const to = urlParams.get("toStation");
+      const travelDate = urlParams.get("travelDate");
+
+      const trainData = [
+        {
+          id: "101",
+          name: "Brindavan Express",
+          from: "bangalore",
+          to: "chennai",
+          departure: "07:15 AM",
+          arrival: "12:30 PM",
+          duration: "5h 15m",
+          rating: 4.5,
+          fare: 280,
+          seats: 40,
+          amenities: ["Food"],
+        },
+        {
+          id: "201",
+          name: "Kovai Express",
+          from: "chennai",
+          to: "coimbatore",
+          departure: "06:10 AM",
+          arrival: "01:40 PM",
+          duration: "7h 30m",
+          rating: 4.2,
+          fare: 320,
+          seats: 45,
+          amenities: ["Food", "WiFi"],
+        },
+        {
+          id: "202",
+          name: "Cheran Express",
+          from: "chennai",
+          to: "coimbatore",
+          departure: "10:00 PM",
+          arrival: "06:00 AM",
+          duration: "8h 00m",
+          rating: 4.3,
+          fare: 350,
+          seats: 50,
+          amenities: ["Sleeper", "Charging"],
+        },
+        {
+          id: "203",
+          name: "Shatabdi Express",
+          from: "chennai",
+          to: "coimbatore",
+          departure: "06:00 AM",
+          arrival: "12:00 PM",
+          duration: "6h 00m",
+          rating: 4.7,
+          fare: 600,
+          seats: 30,
+          amenities: ["Food", "AC"],
+        },
+        {
+          id: "204",
+          name: "Nilgiri Express",
+          from: "chennai",
+          to: "coimbatore",
+          departure: "08:45 PM",
+          arrival: "06:00 AM",
+          duration: "9h 15m",
+          rating: 4.0,
+          fare: 290,
+          seats: 38,
+          amenities: ["Sleeper"],
+        },
+        {
+          id: "205",
+          name: "Intercity Express",
+          from: "chennai",
+          to: "coimbatore",
+          departure: "02:30 PM",
+          arrival: "10:30 PM",
+          duration: "8h 00m",
+          rating: 4.1,
+          fare: 310,
+          seats: 42,
+          amenities: ["Food"],
+        },
+        {
+          id: "301",
+          name: "Shatabdi Express",
+          from: "chennai",
+          to: "bangalore",
+          departure: "06:00 AM",
+          arrival: "10:35 AM",
+          duration: "4h 35m",
+          rating: 4.8,
+          fare: 550,
+          seats: 40,
+          amenities: ["Food", "WiFi"],
+        },
+        {
+          id: "302",
+          name: "Double Decker Express",
+          from: "chennai",
+          to: "bangalore",
+          departure: "07:25 AM",
+          arrival: "12:30 PM",
+          duration: "5h 05m",
+          rating: 4.4,
+          fare: 400,
+          seats: 35,
+          amenities: ["AC", "Charging"],
+        },
+        {
+          id: "303",
+          name: "Brindavan Express",
+          from: "chennai",
+          to: "bangalore",
+          departure: "03:00 PM",
+          arrival: "08:00 PM",
+          duration: "5h 00m",
+          rating: 4.2,
+          fare: 280,
+          seats: 40,
+          amenities: ["Food"],
+        },
+        {
+          id: "304",
+          name: "Lalbagh Express",
+          from: "chennai",
+          to: "bangalore",
+          departure: "06:30 AM",
+          arrival: "11:45 AM",
+          duration: "5h 15m",
+          rating: 4.1,
+          fare: 275,
+          seats: 44,
+          amenities: ["Charging"],
+        },
+        {
+          id: "305",
+          name: "SBC Express",
+          from: "chennai",
+          to: "bangalore",
+          departure: "10:00 AM",
+          arrival: "03:10 PM",
+          duration: "5h 10m",
+          rating: 4.0,
+          fare: 260,
+          seats: 50,
+          amenities: ["Food", "Sleeper"],
+        },
+        {
+          id: "101",
+          name: "Brindavan Express",
+          from: "bangalore",
+          to: "chennai",
+          departure: "07:15 AM",
+          arrival: "12:30 PM",
+          duration: "5h 15m",
+          rating: 4.5,
+          fare: 280,
+          seats: 40,
+          amenities: ["Food"],
+        },
+        {
+          id: "102",
+          name: "Lalbagh Express",
+          from: "bangalore",
+          to: "chennai",
+          departure: "06:00 AM",
+          arrival: "11:10 AM",
+          duration: "5h 10m",
+          rating: 4.3,
+          fare: 270,
+          seats: 42,
+          amenities: ["Charging"],
+        },
+        {
+          id: "103",
+          name: "Shatabdi Express",
+          from: "bangalore",
+          to: "chennai",
+          departure: "06:00 AM",
+          arrival: "10:30 AM",
+          duration: "4h 30m",
+          rating: 4.8,
+          fare: 550,
+          seats: 30,
+          amenities: ["Food", "WiFi"],
+        },
+        {
+          id: "104",
+          name: "Double Decker Express",
+          from: "bangalore",
+          to: "chennai",
+          departure: "02:30 PM",
+          arrival: "07:45 PM",
+          duration: "5h 15m",
+          rating: 4.1,
+          fare: 400,
+          seats: 37,
+          amenities: ["AC"],
+        },
+        {
+          id: "105",
+          name: "SBC-Chennai Mail",
+          from: "bangalore",
+          to: "chennai",
+          departure: "10:00 PM",
+          arrival: "04:00 AM",
+          duration: "6h 00m",
+          rating: 4.0,
+          fare: 290,
+          seats: 39,
+          amenities: ["Sleeper", "Charging"],
+        },
+        {
+          id: "401",
+          name: "Yesvantpur Express",
+          from: "bangalore",
+          to: "coimbatore",
+          departure: "07:00 AM",
+          arrival: "02:00 PM",
+          duration: "7h 00m",
+          rating: 4.2,
+          fare: 300,
+          seats: 40,
+          amenities: ["Food", "Charging"],
+        },
+        {
+          id: "402",
+          name: "Kochuveli SF",
+          from: "bangalore",
+          to: "coimbatore",
+          departure: "09:10 AM",
+          arrival: "04:30 PM",
+          duration: "7h 20m",
+          rating: 4.0,
+          fare: 310,
+          seats: 45,
+          amenities: ["WiFi"],
+        },
+        {
+          id: "403",
+          name: "SBC-Coimbatore Intercity",
+          from: "bangalore",
+          to: "coimbatore",
+          departure: "03:15 PM",
+          arrival: "10:30 PM",
+          duration: "7h 15m",
+          rating: 4.3,
+          fare: 320,
+          seats: 38,
+          amenities: ["Food"],
+        },
+        {
+          id: "404",
+          name: "Uday Express",
+          from: "bangalore",
+          to: "coimbatore",
+          departure: "02:15 PM",
+          arrival: "09:15 PM",
+          duration: "7h 00m",
+          rating: 4.1,
+          fare: 340,
+          seats: 36,
+          amenities: ["AC", "WiFi"],
+        },
+        {
+          id: "405",
+          name: "Ernakulam Express",
+          from: "bangalore",
+          to: "coimbatore",
+          departure: "11:30 PM",
+          arrival: "07:00 AM",
+          duration: "7h 30m",
+          rating: 4.0,
+          fare: 290,
+          seats: 50,
+          amenities: ["Sleeper"],
+        },
+        {
+          id: "501",
+          name: "Island Express",
+          from: "bangalore",
+          to: "trichy",
+          departure: "07:00 AM",
+          arrival: "03:00 PM",
+          duration: "8h 00m",
+          rating: 4.0,
+          fare: 300,
+          seats: 44,
+          amenities: ["Food"],
+        },
+        {
+          id: "502",
+          name: "Mysuru Trichy Express",
+          from: "bangalore",
+          to: "trichy",
+          departure: "08:30 AM",
+          arrival: "04:30 PM",
+          duration: "8h 00m",
+          rating: 4.1,
+          fare: 320,
+          seats: 40,
+          amenities: ["Charging", "Sleeper"],
+        },
+        {
+          id: "503",
+          name: "KSR Express",
+          from: "bangalore",
+          to: "trichy",
+          departure: "06:15 PM",
+          arrival: "02:00 AM",
+          duration: "7h 45m",
+          rating: 4.2,
+          fare: 310,
+          seats: 42,
+          amenities: ["AC", "Food"],
+        },
+        {
+          id: "504",
+          name: "Tirupati Express",
+          from: "bangalore",
+          to: "trichy",
+          departure: "01:00 PM",
+          arrival: "09:00 PM",
+          duration: "8h 00m",
+          rating: 4.0,
+          fare: 290,
+          seats: 48,
+          amenities: ["Charging"],
+        },
+        {
+          id: "505",
+          name: "Yeshvantpur - Trichy SF",
+          from: "bangalore",
+          to: "trichy",
+          departure: "10:00 PM",
+          arrival: "06:00 AM",
+          duration: "8h 00m",
+          rating: 4.3,
+          fare: 330,
+          seats: 37,
+          amenities: ["Sleeper", "WiFi"],
+        },
+      ];
+
+      const resultDiv = document.getElementById("trainResults");
+
+      trainData.forEach((train) => {
+        if (
+          train.from === from.toLowerCase() &&
+          train.to === to.toLowerCase()
+        ) {
+          const card = document.createElement("div");
+          card.className = "train-card";
+
+          card.innerHTML = `
+          <div class="left">
+            <h5>${train.name}</h5>
+            <div class="d-flex justify-content-between mt-3">
+              <div><strong>${train.departure}</strong><br/><small>${
+            train.from
+          }</small></div>
+              <div class="text-center"><small>Duration</small><br/><strong>${
+                train.duration
+              }</strong><br/><i class="fas fa-train"></i></div>
+              <div class="text-end"><strong>${
+                train.arrival
+              }</strong><br/><small>${train.to}</small></div>
+            </div>
+            <p class="text-success mt-3"><i class="fas fa-check-circle"></i> Available (${
+              train.seats
+            })</p>
+            <p><i class="fas fa-star text-warning"></i> ${train.rating}</p>
+          </div>
+          <div class="right">
+            <div class="text-end">
+              ${train.amenities
+                .map(
+                  (a) =>
+                    `<span class="badge-amenity"><i class="fas fa-utensils"></i> ${a}</span>`
+                )
+                .join("")}
+            </div>
+            <h6>Total Fare</h6>
+            <h2>${train.fare}</h2>
+            <p class="small">1 passenger · Economy</p>
+            <button class="book-btn" onclick="showPassengerForm('${
+              train.id
+            }')">Book Now</button>
+          </div>
+        `;
+
+          resultDiv.appendChild(card);
+        }
+      });
+
+      function showPassengerForm(trainId) {
+    	  const selectedTrain = trainData.find(t => t.id === trainId);
+    	  document.getElementById("passengerSection").style.display = "block";
+    	  document.getElementById("trainId").value = selectedTrain.id;
+    	  document.getElementById("trainName").value = selectedTrain.name;
+    	  document.getElementById("fromStation").value = from;
+    	  document.getElementById("toStation").value = to;
+    	  document.getElementById("travelDate").value = travelDate;
+    	}
+
+
+      document.getElementById("count").addEventListener("input", function () {
+        const count = parseInt(this.value);
+        const fieldArea = document.getElementById("passengerFields");
+        fieldArea.innerHTML = "";
+
+        for (let i = 1; i <= count; i++) {
+          fieldArea.innerHTML += `
+          <div class="border rounded p-3 mb-3">
+            <h6>Passenger ${i}</h6>
+            <label>Name:</label>
+            <input type="text" name="passengerName${i}" class="form-control" required />
+            <label>Age:</label>
+            <input type="number" name="passengerAge${i}" class="form-control" required />
+            <label>Gender:</label>
+            <select name="passengerGender${i}" class="form-select" required>
+              <option value="">Select</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+          </div>
+        `;
+        }
+      });
+    </script>
+  </body>
+</html>

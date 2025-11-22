@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd" id="WebApp_ID" version="5.0">
+  <display-name>TrainConnect</display-name>
+
+  
+   <servlet>
+     <servlet-name>Login</servlet-name> 
+      <servlet-class>com.train.UserLoginHandler</servlet-class>
+   </servlet>
+   
+   <servlet-mapping>
+    <servlet-name>Login</servlet-name>
+    <url-pattern>/Login</url-pattern>
+    
+   </servlet-mapping> 
+   
+   <servlet>
+    <servlet-name>Register</servlet-name>
+    <servlet-class>com.train.UserRegisterDb</servlet-class>
+    </servlet>
+    
+    
+     <servlet-mapping>
+     <servlet-name>Register</servlet-name>
+     <url-pattern>/Register</url-pattern>
+     </servlet-mapping>
+   
+   <servlet>
+        <servlet-name>getInTouch</servlet-name>
+        <servlet-class>com.train.getInTouch</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>getInTouch</servlet-name>
+        <url-pattern>/userintouch</url-pattern>
+    </servlet-mapping>
+
+<servlet>
+    <servlet-name>SearchTrainServlet</servlet-name>
+    <servlet-class>com.train.trainBooking</servlet-class>
+</servlet>
+
+<servlet-mapping>
+    <servlet-name>SearchTrainServlet</servlet-name>
+    <url-pattern>/searchTrain</url-pattern>
+</servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>UserPage.html</welcome-file>
+    </welcome-file-list>
+</web-app>
